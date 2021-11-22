@@ -6,14 +6,13 @@ using Zoo_Management.Models.Database;
 
 namespace Zoo_Management.Repositories
 {
-
     public interface IAnimalsRepo
     {
         Animal GetAnimalById(int id);
-        IEnumerable<Animal> GetAll(int pageNumber, int pageSize);
+        IEnumerable<Animal> Search(AnimalSearchRequest searchRequest);
         Animal Create(CreateAnimalRequest request);
     }
-    
+
     public class AnimalsRepo : IAnimalsRepo
     {
         private readonly ZooDbContext _context;
@@ -22,7 +21,7 @@ namespace Zoo_Management.Repositories
         {
             _context = context;
         }
-        
+
         public Animal GetAnimalById(int id)
         {
             var animal = _context.Animals.Single(a => a.AnimalId == id);
@@ -30,10 +29,19 @@ namespace Zoo_Management.Repositories
             return animal;
         }
 
-        public IEnumerable<Animal> GetAll(int pageNumber, int pageSize)
+        public IEnumerable<Animal> Search(AnimalSearchRequest searchRequest)
         {
-            var toSkip = pageSize * (pageNumber - 1);
-            return _context.Animals.Skip(toSkip).Take(pageSize);
+            var toSkip = searchRequest.PageSize * (searchRequest.PageNumber - 1);
+            return _context.Animals.Where(a => searchRequest.Search == null ||
+                                               (
+                                                   a.AnimalName.ToLower().Contains(searchRequest.Search) ||
+                                                   a.Species.SpeciesName.ToLower().Contains(searchRequest.Search) ||
+                                                   a.Species.Classification.ToString().ToLower()
+                                                       .Contains(searchRequest.Search)
+                                                   // TODO Fix _"int.ToString()"_ not working - should be _"enum.ToString()"_
+                                                   // TODO Add age (as a number not a date) and DateAcquired
+                                               ))
+                .Skip(toSkip).Take(searchRequest.PageSize);
         }
 
         public Animal Create(CreateAnimalRequest request)
