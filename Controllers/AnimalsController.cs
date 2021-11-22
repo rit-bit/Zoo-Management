@@ -15,9 +15,9 @@ namespace Zoo_Management.Controllers
         }
         
         [HttpGet]
-        public ActionResult<AnimalListResponse> GetAll()
+        public ActionResult<AnimalListResponse> GetAll([FromQuery] int pageNumber = 1, int pageSize = 10)
         {
-            var animals = _animalsRepo.GetAll();
+            var animals = _animalsRepo.GetAll(pageNumber, pageSize);
             return new AnimalListResponse(animals);
         }
 

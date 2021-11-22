@@ -10,7 +10,7 @@ namespace Zoo_Management.Repositories
     public interface IAnimalsRepo
     {
         Animal GetAnimalById(int id);
-        IEnumerable<Animal> GetAll();
+        IEnumerable<Animal> GetAll(int pageNumber, int pageSize);
         Animal Create(CreateAnimalRequest request);
     }
     
@@ -30,9 +30,10 @@ namespace Zoo_Management.Repositories
             return animal;
         }
 
-        public IEnumerable<Animal> GetAll()
+        public IEnumerable<Animal> GetAll(int pageNumber, int pageSize)
         {
-            return _context.Animals.ToList();
+            var toSkip = pageSize * (pageNumber - 1);
+            return _context.Animals.Skip(toSkip).Take(pageSize);
         }
 
         public Animal Create(CreateAnimalRequest request)
