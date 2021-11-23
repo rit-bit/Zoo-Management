@@ -29,11 +29,15 @@ namespace Zoo_Management
 
             if (!context.Species.Any())
             {
+                var enclosures = SampleEnclosures.GetEnclosures().ToList();
+                context.Enclosures.AddRange(enclosures);
+                context.SaveChanges();
+                
                 var species = SampleSpecies.GetSpecies().ToList();
                 context.Species.AddRange(species);
                 context.SaveChanges();
 
-                var animals = SampleAnimals.GetAnimals(species);
+                var animals = SampleAnimals.GetAnimals(species, enclosures);
                 context.Animals.AddRange(animals);
                 context.SaveChanges();
             }

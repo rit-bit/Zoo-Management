@@ -12,22 +12,28 @@ namespace Zoo_Management.Data
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private static readonly Random Rand = new ();
 
-        public static IEnumerable<Animal> GetAnimals(IEnumerable<Species> species)
+        public static IEnumerable<Animal> GetAnimals(IEnumerable<Species> species, IEnumerable<Enclosure> enclosures)
         {
             var speciesList = species.ToList();
+            var enclosureFullness = enclosures.ToDictionary(e => e, e => 0);
+            var enclosuresWithSpace = enclosures.ToList();
             var names = GetAllNames();
             for (var i = 0; i < Math.Min(NumberOfSampleAnimals, names.Count); i++)
             {
+                enclosuresWithSpace = enclosuresWithSpace.Where(e => enclosureFullness[e] < e.Capacity).ToList();
+                var randomEnclosure = enclosuresWithSpace[Rand.Next(enclosuresWithSpace.Count)];
+                enclosureFullness[randomEnclosure]++;
                 var dateOfBirth = DateHelper.GetRandomDate();
                 var ownedSinceBirth = Rand.Next(2) == 1;
-                yield return new Animal()
+                yield return new Animal
                 {
                     AnimalName = GetRandomName(names),
                     Species = speciesList[Rand.Next(speciesList.Count)],
                     Sex = Rand.Next(2) == 1 ? Sex.Male : Sex.Female,
                     DateOfBirth = dateOfBirth,
                     DateAcquired = ownedSinceBirth ? null : DateHelper.GetRandomDateSince(dateOfBirth),
-                    AcquiredFrom = ownedSinceBirth ? "" : "Another zoo"
+                    AcquiredFrom = ownedSinceBirth ? "" : "Another zoo",
+                    Enclosure = randomEnclosure
                 };
             }
         }
@@ -189,7 +195,6 @@ namespace Zoo_Management.Data
                 "Jamie",
                 "Jasmine",
                 "Jasper",
-                "Jaxson",
                 "Jazmie",
                 "Jazz",
                 "Jelly-bean",

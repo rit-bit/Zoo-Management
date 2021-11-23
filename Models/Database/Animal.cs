@@ -11,5 +11,6 @@ namespace Zoo_Management.Models.Database
         public DateTime DateOfBirth { get; set; }
         public DateTime? DateAcquired { get; set; }
         public string AcquiredFrom { get; set; }
+        public Enclosure Enclosure { get; set; }
     }
 }

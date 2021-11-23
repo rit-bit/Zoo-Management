@@ -19,7 +19,6 @@ namespace Zoo_Management.Models
         public DateTime DateOfBirth => _animal.DateOfBirth;
         public DateTime? DateAcquired => _animal.DateAcquired;
         public string AcquiredFrom => _animal.AcquiredFrom;
-        // public string SpeciesName => _animal.Species.SpeciesName;
-
+        public Enclosure Enclosure => _animal.Enclosure;
     }
 }

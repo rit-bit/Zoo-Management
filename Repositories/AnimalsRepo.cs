@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +34,9 @@ namespace Zoo_Management.Repositories
         public IEnumerable<Animal> Search(AnimalSearchRequest searchRequest)
         {
             var toSkip = searchRequest.PageSize * (searchRequest.PageNumber - 1);
-            IQueryable<Animal> query = _context.Animals.Include(a => a.Species);
+            IQueryable<Animal> query = _context.Animals
+                .Include(a => a.Species)
+                .Include(a => a.Enclosure);
 
             if (searchRequest.Species != null)
                 query = query.Where(a => a.Species.SpeciesName.ToLower().Contains(searchRequest.Species));
@@ -74,9 +75,16 @@ namespace Zoo_Management.Repositories
             return query.Skip(toSkip).Take(searchRequest.PageSize);
         }
 
-        public Animal Create(CreateAnimalRequest request)
+        public Animal Create(CreateAnimalRequest request) // TODO This throws a nasty exception
         {
             var species = _context.Species.Single(s => s.SpeciesId == request.SpeciesId);
+            var enclosure = _context.Enclosures.Single(e => e.Id == request.EnclosureId);
+            var animalsInEnclosure = _context.Animals.Count(a => a.Enclosure.Id == enclosure.Id);
+            var enclosureHasRoom = enclosure.Capacity > animalsInEnclosure;
+            if (!enclosureHasRoom)
+            {
+                throw new EnclosureFullException($"{enclosure.Name} does not have room for {request.AnimalName} the {species.SpeciesName}.");
+            }
             var insertResponse = _context.Animals.Add(new Animal
             {
                 AnimalName = request.AnimalName,

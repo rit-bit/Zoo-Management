@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using Zoo_Management.Models;
 using Zoo_Management.Repositories;
 
@@ -36,11 +37,17 @@ namespace Zoo_Management.Controllers
                 return BadRequest(ModelState);
             }
 
-            var animal = _animalsRepo.Create(newAnimal);
-
-            var url = Url.Action("GetById", new {id = animal.AnimalId});
-            var responseModel = new AnimalResponse(animal);
-            return Created(url, responseModel);
+            try
+            {
+                var animal = _animalsRepo.Create(newAnimal);
+                var url = Url.Action("GetById", new {id = animal.AnimalId});
+                var responseModel = new AnimalResponse(animal);
+                return Created(url, responseModel);
+            }
+            catch (EnclosureFullException e)
+            {
+                return BadRequest(e);
+            }
         }
     }
 }
