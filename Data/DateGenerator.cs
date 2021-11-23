@@ -16,6 +16,6 @@ namespace Zoo_Management.Data
             var daysDifference = (DateTime.Today - since).Days;
             var randomDaysDifference = Rand.Next(daysDifference);
             return since.AddDays(randomDaysDifference);
-        } 
+        }
     }
 }

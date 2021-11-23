@@ -36,8 +36,7 @@ namespace Zoo_Management.Repositories
                                                (
                                                    a.AnimalName.ToLower().Contains(searchRequest.Search) ||
                                                    a.Species.SpeciesName.ToLower().Contains(searchRequest.Search) ||
-                                                   a.Species.Classification.ToString().ToLower()
-                                                       .Contains(searchRequest.Search)
+                                                   ClassificationEnumHelper.IntToEnum(a.Species.Classification).ToString().ToLower().Contains(searchRequest.Search)
                                                    // TODO Fix _"int.ToString()"_ not working - should be _"enum.ToString()"_
                                                    // TODO Add age (as a number not a date) and DateAcquired
                                                ))
