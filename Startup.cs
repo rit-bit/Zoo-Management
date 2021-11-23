@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +15,14 @@ namespace Zoo_Management
     public class Startup
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
-        
+
         private const string CorsPolicyName = "_zooCorsPolicy";
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -39,15 +41,19 @@ namespace Zoo_Management
                         .AllowAnyMethod()
                         .AllowAnyHeader());
             });
-            
-            services.AddControllers();
 
-            services.AddTransient<IAnimalsRepo, AnimalsRepo>();
-            services.AddTransient<ISpeciesRepo, SpeciesRepo>();
-            
+            services
+                .AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+            services
+                .AddTransient<IAnimalsRepo, AnimalsRepo>()
+                .AddTransient<ISpeciesRepo, SpeciesRepo>();
+
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Zoo_Management", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "Zoo_Management", Version = "v1"});
             });
         }
 

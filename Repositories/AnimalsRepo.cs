@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Zoo_Management.Data;
 using Zoo_Management.Models;
 using Zoo_Management.Models.Database;
 
@@ -32,15 +35,43 @@ namespace Zoo_Management.Repositories
         public IEnumerable<Animal> Search(AnimalSearchRequest searchRequest)
         {
             var toSkip = searchRequest.PageSize * (searchRequest.PageNumber - 1);
-            return _context.Animals.Where(a => searchRequest.Search == null ||
-                                               (
-                                                   a.AnimalName.ToLower().Contains(searchRequest.Search) ||
-                                                   a.Species.SpeciesName.ToLower().Contains(searchRequest.Search) ||
-                                                   ClassificationEnumHelper.IntToEnum(a.Species.Classification).ToString().ToLower().Contains(searchRequest.Search)
-                                                   // TODO Fix _"int.ToString()"_ not working - should be _"enum.ToString()"_
-                                                   // TODO Add age (as a number not a date) and DateAcquired
-                                               ))
-                .Skip(toSkip).Take(searchRequest.PageSize);
+            IQueryable<Animal> query = _context.Animals.Include(a => a.Species);
+
+            if (searchRequest.Species != null)
+                query = query.Where(a => a.Species.SpeciesName.ToLower().Contains(searchRequest.Species));
+
+            if (searchRequest.Classification != null)
+                query = query.Where(a => a.Species.Classification == searchRequest.Classification);
+
+            if (searchRequest.Age != null)
+                query = query.Where(a => (DateTime.Today.Year - a.DateOfBirth.Year).Equals(searchRequest.Age));
+
+            if (searchRequest.Name != null)
+                query = query.Where(a => a.AnimalName.ToLower().Contains(searchRequest.Name));
+
+            if (searchRequest.DateAcquired != null)
+                query = query.Where(a => a.DateAcquired.Equals(searchRequest.DateAcquired));
+
+            switch (searchRequest.OrderBy)
+            {
+                case OrderBy.Age:
+                    query = query.OrderBy(a => DateTime.Today.Year - a.DateOfBirth.Year);
+                    break;
+                case OrderBy.Classification:
+                    query = query.OrderBy(a => a.Species.Classification);
+                    break;
+                case OrderBy.Name:
+                    query = query.OrderBy(a => a.AnimalName);
+                    break;
+                case OrderBy.DateAcquired:
+                    query = query.OrderBy(a => a.DateAcquired);
+                    break;
+                default:
+                    query = query.OrderBy(a => a.Species.SpeciesName);
+                    break;
+            }
+
+            return query.Skip(toSkip).Take(searchRequest.PageSize);
         }
 
         public Animal Create(CreateAnimalRequest request)

@@ -18,7 +18,7 @@ namespace Zoo_Management.Data
             var names = GetAllNames();
             for (var i = 0; i < Math.Min(NumberOfSampleAnimals, names.Count); i++)
             {
-                var dateOfBirth = DateGenerator.GetRandomDate();
+                var dateOfBirth = DateHelper.GetRandomDate();
                 var ownedSinceBirth = Rand.Next(2) == 1;
                 yield return new Animal()
                 {
@@ -26,7 +26,7 @@ namespace Zoo_Management.Data
                     Species = speciesList[Rand.Next(speciesList.Count)],
                     Sex = Rand.Next(2) == 1 ? Sex.Male : Sex.Female,
                     DateOfBirth = dateOfBirth,
-                    DateAcquired = ownedSinceBirth ? null : DateGenerator.GetRandomDateSince(dateOfBirth),
+                    DateAcquired = ownedSinceBirth ? null : DateHelper.GetRandomDateSince(dateOfBirth),
                     AcquiredFrom = ownedSinceBirth ? "" : "Another zoo"
                 };
             }

@@ -2,7 +2,7 @@
 
 namespace Zoo_Management.Data
 {
-    public static class DateGenerator
+    public static class DateHelper
     {
         private static readonly Random Rand = new();
 
@@ -16,6 +16,15 @@ namespace Zoo_Management.Data
             var daysDifference = (DateTime.Today - since).Days;
             var randomDaysDifference = Rand.Next(daysDifference);
             return since.AddDays(randomDaysDifference);
+        }
+
+        public static int GetAge(DateTime birthdate)
+        {
+            var today = DateTime.Today;
+            var age = today.Year - birthdate.Year;
+            // Leap year adjustment
+            if (birthdate.Date > today.AddYears(-age)) age--;
+            return age;
         }
     }
 }
