@@ -2,13 +2,12 @@
 using Zoo_Management.Data;
 using Zoo_Management.Models.Database;
 
-namespace Zoo_Management.Models
+namespace Zoo_Management.Models.Request
 {
     public class AnimalSearchRequest
     {
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
-        private string? _search;
         private string? _name;
         private string? _species;
         
@@ -26,5 +25,6 @@ namespace Zoo_Management.Models
         }
         public DateTime? DateAcquired { get; set; }
         public OrderBy OrderBy { get; set; }
+        public int? EnclosureId { get; set; }
     }
 }

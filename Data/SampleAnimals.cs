@@ -23,11 +23,11 @@ namespace Zoo_Management.Data
                 enclosuresWithSpace = enclosuresWithSpace.Where(e => enclosureFullness[e] < e.Capacity).ToList();
                 var randomEnclosure = enclosuresWithSpace[Rand.Next(enclosuresWithSpace.Count)];
                 enclosureFullness[randomEnclosure]++;
-                var dateOfBirth = DateHelper.GetRandomDate();
+                var dateOfBirth = DateHelper.GetRandomAnimalDate();
                 var ownedSinceBirth = Rand.Next(2) == 1;
                 yield return new Animal
                 {
-                    AnimalName = GetRandomName(names),
+                    AnimalName = NameHelper.GetRandomName(names),
                     Species = speciesList[Rand.Next(speciesList.Count)],
                     Sex = Rand.Next(2) == 1 ? Sex.Male : Sex.Female,
                     DateOfBirth = dateOfBirth,
@@ -36,14 +36,6 @@ namespace Zoo_Management.Data
                     Enclosure = randomEnclosure
                 };
             }
-        }
-
-        private static string GetRandomName(IList<string> names)
-        {
-            var index = Rand.Next(names.Count);
-            var name = names[index];
-            names.RemoveAt(index);
-            return name;
         }
 
         private static IList<string> GetAllNames()

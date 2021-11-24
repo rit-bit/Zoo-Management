@@ -49,7 +49,8 @@ namespace Zoo_Management
 
             services
                 .AddTransient<IAnimalsRepo, AnimalsRepo>()
-                .AddTransient<ISpeciesRepo, SpeciesRepo>();
+                .AddTransient<ISpeciesRepo, SpeciesRepo>()
+                .AddTransient<IZooKeepersRepo, ZooKeepersRepo>();
 
             services.AddSwaggerGen(c =>
             {

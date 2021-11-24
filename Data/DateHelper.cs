@@ -6,9 +6,15 @@ namespace Zoo_Management.Data
     {
         private static readonly Random Rand = new();
 
-        public static DateTime GetRandomDate()
+        public static DateTime GetRandomAnimalDate()
         {
-            return GetRandomDateSince(new DateTime(1980, 01, 01));
+            return GetRandomDateSince(new DateTime(1995, 01, 01));
+        }
+        
+        public static DateTime GetRandomZooKeeperDate()
+        {
+            var date = GetRandomDateSince(new DateTime(1982, 01, 01));
+            return date.AddYears(-18);
         }
         
         public static DateTime GetRandomDateSince(DateTime since)

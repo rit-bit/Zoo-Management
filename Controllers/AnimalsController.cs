@@ -1,6 +1,7 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Zoo_Management.Models;
+using Zoo_Management.Models.Request;
+using Zoo_Management.Models.Response;
 using Zoo_Management.Repositories;
 
 namespace Zoo_Management.Controllers
@@ -25,7 +26,7 @@ namespace Zoo_Management.Controllers
         [HttpGet("{id:int}")]
         public ActionResult<AnimalResponse> GetById([FromRoute] int id)
         {
-            var animal = _animalsRepo.GetAnimalById(id);
+            var animal = _animalsRepo.GetById(id);
             return new AnimalResponse(animal);
         }
 
@@ -46,7 +47,7 @@ namespace Zoo_Management.Controllers
             }
             catch (EnclosureFullException e)
             {
-                return BadRequest(e);
+                return BadRequest(e.Message);
             }
         }
     }

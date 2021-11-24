@@ -37,8 +37,12 @@ namespace Zoo_Management
                 context.Species.AddRange(species);
                 context.SaveChanges();
 
-                var animals = SampleAnimals.GetAnimals(species, enclosures);
-                context.Animals.AddRange(animals);
+                var animalsList = SampleAnimals.GetAnimals(species, enclosures).ToList();
+                context.Animals.AddRange(animalsList);
+                context.SaveChanges();
+
+                var zooKeepers = SampleZooKeepers.GetZooKeepers(animalsList);
+                context.ZooKeepers.AddRange(zooKeepers);
                 context.SaveChanges();
             }
         }

@@ -5,12 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Zoo_Management.Data;
 using Zoo_Management.Models;
 using Zoo_Management.Models.Database;
+using Zoo_Management.Models.Request;
 
 namespace Zoo_Management.Repositories
 {
     public interface IAnimalsRepo
     {
-        Animal GetAnimalById(int id);
+        Animal GetById(int id);
         IEnumerable<Animal> Search(AnimalSearchRequest searchRequest);
         Animal Create(CreateAnimalRequest request);
     }
@@ -24,7 +25,7 @@ namespace Zoo_Management.Repositories
             _context = context;
         }
 
-        public Animal GetAnimalById(int id)
+        public Animal GetById(int id)
         {
             var animal = _context.Animals.Single(a => a.AnimalId == id);
             _context.Entry(animal).Reference(a => a.Species).Load();
@@ -38,6 +39,23 @@ namespace Zoo_Management.Repositories
                 .Include(a => a.Species)
                 .Include(a => a.Enclosure);
 
+            query = ApplySearchFilters(query, searchRequest);
+
+            query = searchRequest.OrderBy switch
+            {
+                OrderBy.Age => query.OrderBy(a => DateTime.Today.Year - a.DateOfBirth.Year),
+                OrderBy.Classification => query.OrderBy(a => a.Species.Classification),
+                OrderBy.Name => query.OrderBy(a => a.AnimalName),
+                OrderBy.DateAcquired => query.OrderBy(a => a.DateAcquired),
+                OrderBy.Species => query.OrderBy(a => a.Species.SpeciesName),
+                _ => query.OrderBy(a => a.Enclosure.Id).ThenBy(a => a.Species.SpeciesName)
+            };
+
+            return query.Skip(toSkip).Take(searchRequest.PageSize);
+        }
+
+        private static IQueryable<Animal> ApplySearchFilters(IQueryable<Animal> query, AnimalSearchRequest searchRequest)
+        {
             if (searchRequest.Species != null)
                 query = query.Where(a => a.Species.SpeciesName.ToLower().Contains(searchRequest.Species));
 
@@ -53,29 +71,13 @@ namespace Zoo_Management.Repositories
             if (searchRequest.DateAcquired != null)
                 query = query.Where(a => a.DateAcquired.Equals(searchRequest.DateAcquired));
 
-            switch (searchRequest.OrderBy)
-            {
-                case OrderBy.Age:
-                    query = query.OrderBy(a => DateTime.Today.Year - a.DateOfBirth.Year);
-                    break;
-                case OrderBy.Classification:
-                    query = query.OrderBy(a => a.Species.Classification);
-                    break;
-                case OrderBy.Name:
-                    query = query.OrderBy(a => a.AnimalName);
-                    break;
-                case OrderBy.DateAcquired:
-                    query = query.OrderBy(a => a.DateAcquired);
-                    break;
-                default:
-                    query = query.OrderBy(a => a.Species.SpeciesName);
-                    break;
-            }
+            if (searchRequest.EnclosureId != null)
+                query = query.Where(a => a.Enclosure.Id == searchRequest.EnclosureId);
 
-            return query.Skip(toSkip).Take(searchRequest.PageSize);
+            return query;
         }
 
-        public Animal Create(CreateAnimalRequest request) // TODO This throws a nasty exception
+        public Animal Create(CreateAnimalRequest request)
         {
             var species = _context.Species.Single(s => s.SpeciesId == request.SpeciesId);
             var enclosure = _context.Enclosures.Single(e => e.Id == request.EnclosureId);
@@ -92,7 +94,8 @@ namespace Zoo_Management.Repositories
                 Sex = request.Sex,
                 DateOfBirth = request.DateOfBirth,
                 DateAcquired = request.DateAcquired,
-                AcquiredFrom = request.AcquiredFrom
+                AcquiredFrom = request.AcquiredFrom,
+                Enclosure = enclosure
             });
             _context.SaveChanges();
 

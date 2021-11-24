@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Zoo_Management.Models;
+using Zoo_Management.Models.Request;
+using Zoo_Management.Models.Response;
 using Zoo_Management.Repositories;
 
 namespace Zoo_Management.Controllers
@@ -22,17 +24,25 @@ namespace Zoo_Management.Controllers
         }
 
         [HttpPost("create")]
-        public IActionResult Create([FromBody] CreateSpeciesRequest newSpecies)
+        public IActionResult Create([FromBody] CreateSpeciesRequest speciesRequest)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var species = _speciesRepo.Create(newSpecies);
+            foreach (var species in _speciesRepo.GetAll())
+            {
+                if (species.SpeciesName.ToLower().Equals(speciesRequest.SpeciesName.ToLower()))
+                {
+                    return BadRequest(
+                        $"A species with the name {speciesRequest.SpeciesName} already exists (id {species.SpeciesId})");
+                }
+            }
+            var newSpecies = _speciesRepo.Create(speciesRequest);
 
             var url = Url.Action("GetAll");
-            var responseModel = new SpeciesResponse(species);
+            var responseModel = new SpeciesResponse(newSpecies);
             return Created(url, responseModel);   
         }
     }

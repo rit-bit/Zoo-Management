@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Zoo_Management.Models;
 using Zoo_Management.Models.Database;
+using Zoo_Management.Models.Request;
 
 namespace Zoo_Management.Repositories
 {

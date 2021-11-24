@@ -2,7 +2,7 @@
 using System.Linq;
 using Zoo_Management.Models.Database;
 
-namespace Zoo_Management.Models
+namespace Zoo_Management.Models.Response
 {
     public class AnimalListResponse
     {
@@ -10,7 +10,7 @@ namespace Zoo_Management.Models
 
         public AnimalListResponse(IEnumerable<Animal> animalList)
         {
-            AnimalList = animalList.Select(s => new AnimalResponse(s));
+            AnimalList = animalList.Select(a => new AnimalResponse(a));
         }
     }
 }

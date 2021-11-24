@@ -1,7 +1,7 @@
 ﻿using System;
 using Zoo_Management.Models.Database;
 
-namespace Zoo_Management.Models
+namespace Zoo_Management.Models.Request
 {
     public class CreateAnimalRequest
     {
